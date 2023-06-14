@@ -1,13 +1,12 @@
 project(int128)
 
-# add_library(${PROJECT_NAME}
-#     include/int128/Board.hpp  src/Board.cpp
-#     include/int128/Solver.hpp src/Solver.cpp
-# )
+add_library(${PROJECT_NAME}
+    include/int128/Int128.hpp  src/Int128.cpp
+)
 
-# target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_include_directories(${PROJECT_NAME} PUBLIC include)
 
-# add_library(int128::int128 ALIAS ${PROJECT_NAME})
+add_library(int128::int128 ALIAS ${PROJECT_NAME})
 
 enable_testing()
 find_package(GTest REQUIRED)
