@@ -2,6 +2,4 @@
 
 #include "int128/Int128.hpp"
 
-int main() {
-    
-}
+int main() {}
