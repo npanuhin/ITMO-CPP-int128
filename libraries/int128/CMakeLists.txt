@@ -8,13 +8,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 add_library(int128::int128 ALIAS ${PROJECT_NAME})
 
-enable_testing()
-find_package(GTest REQUIRED)
-include(GoogleTest)
-
-# add_executable(tests tests/test_board.cpp tests/test_solver.cpp)
-# target_link_libraries(tests PRIVATE GTest::GTest int128::int128)
-# gtest_discover_tests(tests)
+find_package(Catch2 3 REQUIRED)
+add_executable(tests tests/test_int128.cpp)
+target_link_libraries(tests PRIVATE Catch2::Catch2WithMain int128::int128)
 
 if(COMPILE_OPTS)
     target_compile_options(${PROJECT_NAME} PUBLIC ${COMPILE_OPTS})

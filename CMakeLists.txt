@@ -47,7 +47,7 @@ endif()
 include(${CMAKE_BINARY_DIR}/conan.cmake)
 
 conan_cmake_configure(
-    REQUIRES gtest/1.13.0
+    REQUIRES catch2/3.3.2
     GENERATORS cmake_find_package
 )
 
