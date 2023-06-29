@@ -10,10 +10,10 @@
 
 class Expression {
 public:
-    virtual ~Expression()                                                               = default;
-    virtual Int128 eval(const std::unordered_map<std::string, Int128>& variables) const = 0;
-    virtual std::unique_ptr<Expression> clone() const                                   = 0;
-    virtual void print(std::ostream& os) const                                          = 0;
+    virtual ~Expression()                                                                    = default;
+    virtual Int128 eval(const std::unordered_map<std::string, Int128>& variables = {}) const = 0;
+    virtual std::unique_ptr<Expression> clone() const                                        = 0;
+    virtual void print(std::ostream& os) const                                               = 0;
 };
 
 class Const: public Expression {
@@ -36,7 +36,7 @@ private:
 public:
     explicit Variable(std::string name) : name(std::move(name)) {}
 
-    Int128 eval(const std::unordered_map<std::string, Int128>& variables) const override;
+    Int128 eval(const std::unordered_map<std::string, Int128>& variables = {}) const override;
     std::unique_ptr<Expression> clone() const override;
     void print(std::ostream& os) const override;
 };
@@ -49,7 +49,7 @@ public:
     explicit Negate(std::unique_ptr<Expression> expr) : expr(std::move(expr)) {}
     explicit Negate(const Expression& expr) : expr(expr.clone()) {}
 
-    Int128 eval(const std::unordered_map<std::string, Int128>& variables) const override;
+    Int128 eval(const std::unordered_map<std::string, Int128>& variables = {}) const override;
     std::unique_ptr<Expression> clone() const override;
     void print(std::ostream& os) const override;
 };
@@ -64,7 +64,7 @@ public:
         : left(std::move(left)), right(std::move(right)) {}
     Add(const Expression& left, const Expression& right) : left(left.clone()), right(right.clone()) {}
 
-    Int128 eval(const std::unordered_map<std::string, Int128>& variables) const override;
+    Int128 eval(const std::unordered_map<std::string, Int128>& variables = {}) const override;
     std::unique_ptr<Expression> clone() const override;
     void print(std::ostream& os) const override;
 };
@@ -79,7 +79,7 @@ public:
         : left(std::move(left)), right(std::move(right)) {}
     Subtract(const Expression& left, const Expression& right) : left(left.clone()), right(right.clone()) {}
 
-    Int128 eval(const std::unordered_map<std::string, Int128>& variables) const override;
+    Int128 eval(const std::unordered_map<std::string, Int128>& variables = {}) const override;
     std::unique_ptr<Expression> clone() const override;
     void print(std::ostream& os) const override;
 };
@@ -94,7 +94,7 @@ public:
         : left(std::move(left)), right(std::move(right)) {}
     Multiply(const Expression& left, const Expression& right) : left(left.clone()), right(right.clone()) {}
 
-    Int128 eval(const std::unordered_map<std::string, Int128>& variables) const override;
+    Int128 eval(const std::unordered_map<std::string, Int128>& variables = {}) const override;
     std::unique_ptr<Expression> clone() const override;
     void print(std::ostream& os) const override;
 };
@@ -109,7 +109,7 @@ public:
         : left(std::move(left)), right(std::move(right)) {}
     Divide(const Expression& left, const Expression& right) : left(left.clone()), right(right.clone()) {}
 
-    Int128 eval(const std::unordered_map<std::string, Int128>& variables) const override;
+    Int128 eval(const std::unordered_map<std::string, Int128>& variables = {}) const override;
     std::unique_ptr<Expression> clone() const override;
     void print(std::ostream& os) const override;
 };
