@@ -1,11 +1,12 @@
 #include <bitset>
+#include <iomanip>
 #include <iostream>
 
 #include "int128/Int128.hpp"
 
 int main() {
-    // std::bitset<64> test(uint64_t(1) << 40);
-    // std::cout << test << std::endl;
+    std::bitset<64> test(uint64_t(1) << 40);
+    std::cout << test << std::endl;
 
     // Int128 a(2);
     // Int128 b(-3);
@@ -83,4 +84,7 @@ int main() {
     std::cout << c.bit_string() << std::endl;
 
     std::cout << c.str() << std::endl;
+
+    std::cout << int64_t(a) << std::endl;
+    std::cout << std::setprecision(100) << double(a) << std::endl;
 }

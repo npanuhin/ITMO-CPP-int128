@@ -1,6 +1,8 @@
 #include "int128/Int128.hpp"
 
+#include <algorithm>
 #include <bitset>
+#include <cmath>
 #include <iostream>
 
 // Конструирование без аргументов
@@ -9,7 +11,7 @@ Int128::Int128() : high(0), low(0) {}
 // Конструирование от int64_t
 Int128::Int128(int64_t num) : high(0) {
     low  = static_cast<uint64_t>(num);
-    high = static_cast<uint64_t>(num < 0 ? ~0 : 0);
+    high = static_cast<int64_t>(num < 0 ? ~0 : 0);
 }
 
 // Конструирование от int64_t(high) и uint64_t(low)
@@ -34,15 +36,15 @@ Int128::Int128(std::string_view str) : high(0), low(0) {
 
 // Явное приведение к int64_t
 Int128::operator int64_t() const {
-    return low;
+    uint64_t sign_bit =
+        (high >> 63) << 63;  // Bit 1 in 64th place if `high` is negative (has bit in 64th place), else 0
+    uint64_t low_bits = low & ~(uint64_t(1) << 63);  // `low` without first bit
+    return static_cast<int64_t>(sign_bit | low_bits);
 }
 
 // Явное приведение к double
 Int128::operator double() const {
-    uint64_t sign_bit =
-        (high >> 63) << 63;  // Bit 1 in 64th place if `high` is negative (has bit in 64th place), else 0
-    uint64_t low_bits = low & ~(uint64_t(1) << 63);  // `low` without first bit
-    return static_cast<double>(sign_bit | low_bits);
+    return std::ldexp(double(high), 64) + double(low);
 }
 
 // Перевод в строку: std::string str()
@@ -66,11 +68,11 @@ Int128 Int128::operator+(const Int128 &_rhs) const {
     Int128 lhs = *this;
     Int128 rhs = _rhs;
     Int128 result;
-    uint64_t carry = 0;
-    for (size_t i = 0; i < 128; ++i) {
-        uint64_t lhs_bit = static_cast<int64_t>((lhs >> i) & Int128(1));
-        uint64_t rhs_bit = static_cast<int64_t>((rhs >> i) & Int128(1));
-        uint64_t sum     = lhs_bit + rhs_bit + carry;
+    int64_t carry = 0;
+    for (int i = 0; i < 128; ++i) {
+        int64_t lhs_bit = static_cast<int64_t>((lhs >> i) & Int128(1));
+        int64_t rhs_bit = static_cast<int64_t>((rhs >> i) & Int128(1));
+        int64_t sum     = lhs_bit + rhs_bit + carry;
 
         carry = sum >> 1;
         result |= Int128(sum & 1) << i;
@@ -208,9 +210,9 @@ Int128 Int128::operator<<(int shift) const {
     }
     Int128 result;
     if (shift >= 64) {
-        result.high = low << (shift - 64);
+        result.high = static_cast<int64_t>(low) << (shift - 64);
     } else {
-        result.high = (high << shift) | (low >> (64 - shift));
+        result.high = static_cast<int64_t>(high << shift) | static_cast<int64_t>(low >> (64 - shift));
         result.low  = low << shift;
     }
     return result;
@@ -230,7 +232,7 @@ Int128 Int128::operator>>(int shift) const {
         result.low = static_cast<uint64_t>(high) >> (shift - 64);
     } else {
         result.low  = (low >> shift) | (high << (64 - shift));
-        result.high = static_cast<int64_t>(static_cast<uint64_t>(high) >> shift);  // TODO
+        result.high = static_cast<int64_t>(static_cast<uint64_t>(high) >> shift);
     }
     return result;
 }

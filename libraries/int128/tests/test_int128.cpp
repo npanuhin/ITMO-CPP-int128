@@ -217,9 +217,8 @@ TEST_CASE("Comparison", "[comparison]") {
 }
 
 TEST_CASE("Cast to double", "[double]") {
-    //    INFO(std::setprecision(100) << static_cast<double>(Int128(NUM1)));
-    REQUIRE(static_cast<double>(Int128(NUM1)) == static_cast<double>(13015450099989248000ull));
-    REQUIRE((double)(Int128(NUM1)) == static_cast<double>(13015450099989248000ull));
+    REQUIRE(static_cast<double>(Int128(NUM1)) == -42331917115048285275532613511431585792.0);
+    REQUIRE((double)Int128(NUM1) == -42331917115048285275532613511431585792.0);
 }
 
 TEST_CASE("Division", "[division]") {
