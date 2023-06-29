@@ -4,13 +4,6 @@
 
 #include "int128/Int128.hpp"
 
-namespace {
-
-// int64_t SMALL_64_NUMBER = 369;
-// int64_t LARGE_64_NUMBER = (uint64_t(1) << 14) + (uint64_t(1) << 34) + (uint64_t(1) << 48);
-// int64_t VERY_LARGE_64_NUMBER = INT64_MAX;
-// int64_t VERY_LARGE_NEGATIVE_64_NUMBER = INT64_MIN;
-
 std::string NUM1 = "-42331917115048286369321807834015434053";
 std::string NUM2 = "-29256914613596052498173063890724085253";
 std::string NUM3 = "109049884421922508591792876277019054036";
@@ -80,163 +73,163 @@ std::string NUM3_DIV_NUM5_BIN =
     "0000000000000000000000000000000000000000000000000000000000000000"
     "0000000000000000000000000000000000000000000000000000000000001000";
 
-}  // anonymous namespace
-
 std::map<char, char> BIN_REVERT = {{'0', '1'}, {'1', '0'}};
 
-TEST_CASE("Bit shift left", "[bit shift left]") {
-    for (int i = 0; i < 128; ++i) {
-        std::string expected = std::string(127 - i, '0') + std::string(1, '1') + std::string(i, '0');
-        REQUIRE((Int128(1) << i).bit_string() == expected);
-    }
-}
-
-TEST_CASE("Bit shift right", "[bit shift right]") {
-    for (int i = 0; i < 128; ++i) {
-        std::string expected = std::string(i, '0') + std::string(1, '1') + std::string(127 - i, '0');
-        REQUIRE(((Int128(1) << 127) >> i).bit_string() == expected);
-    }
-}
-
-TEST_CASE("From string_view", "[string_view]") {
-    for (auto& [decimal1, binary] : NUMBERS) {
-        REQUIRE(Int128(decimal1).bit_string() == binary);
-    }
-}
-
-TEST_CASE("To str()", "[str]") {
-    for (auto& [decimal1, binary] : NUMBERS) {
-        REQUIRE(Int128(decimal1).str() == decimal1);
-    }
-}
-
-TEST_CASE("Unary minus", "[minus]") {
-    for (auto& [decimal1, binary] : NUMBERS) {
-        std::string expected;
-        for (auto c : binary) {
-            expected += BIN_REVERT[c];
+TEST_CASE("Int128", "[int128]") {
+    SECTION("Bit shift left") {
+        for (int i = 0; i < 128; ++i) {
+            std::string expected = std::string(127 - i, '0') + std::string(1, '1') + std::string(i, '0');
+            REQUIRE((Int128(1) << i).bit_string() == expected);
         }
-        REQUIRE((-Int128(decimal1) - Int128(1)).bit_string() == expected);
     }
-}
 
-TEST_CASE("Addition", "[addition]") {
-    REQUIRE((Int128(NUM1) + Int128(NUM2)).bit_string() == NUM1_PLUS_NUM2_BIN);
-    REQUIRE((Int128(NUM2) + Int128(NUM1)).bit_string() == NUM1_PLUS_NUM2_BIN);
+    SECTION("Bit shift right") {
+        for (int i = 0; i < 128; ++i) {
+            std::string expected = std::string(i, '0') + std::string(1, '1') + std::string(127 - i, '0');
+            REQUIRE(((Int128(1) << 127) >> i).bit_string() == expected);
+        }
+    }
 
-    REQUIRE((Int128(NUM1) + Int128(NUM3)).bit_string() == NUM1_PLUS_NUM3_BIN);
-    REQUIRE((Int128(NUM3) + Int128(NUM1)).bit_string() == NUM1_PLUS_NUM3_BIN);
+    SECTION("From string_view") {
+        for (auto& [decimal1, binary] : NUMBERS) {
+            REQUIRE(Int128(decimal1).bit_string() == binary);
+        }
+    }
 
-    REQUIRE((Int128(NUM1) + Int128(NUM4)).bit_string() == NUM1_PLUS_NUM4_BIN);
-    REQUIRE((Int128(NUM4) + Int128(NUM1)).bit_string() == NUM1_PLUS_NUM4_BIN);
+    SECTION("To str()") {
+        for (auto& [decimal1, binary] : NUMBERS) {
+            REQUIRE(Int128(decimal1).str() == decimal1);
+        }
+    }
 
-    REQUIRE((Int128(NUM1) + Int128(NUM5)).bit_string() == NUM1_PLUS_NUM5_BIN);
-    REQUIRE((Int128(NUM5) + Int128(NUM1)).bit_string() == NUM1_PLUS_NUM5_BIN);
-}
+    SECTION("Unary minus") {
+        for (auto& [decimal1, binary] : NUMBERS) {
+            std::string expected;
+            for (auto c : binary) {
+                expected += BIN_REVERT[c];
+            }
+            REQUIRE((-Int128(decimal1) - Int128(1)).bit_string() == expected);
+        }
+    }
 
-TEST_CASE("Subtraction", "[subtraction]") {
-    REQUIRE((Int128(NUM1_PLUS_NUM2) - Int128(NUM1)).bit_string() == NUM2_BIN);
-    REQUIRE((Int128(NUM1_PLUS_NUM2) - Int128(NUM2)).bit_string() == NUM1_BIN);
+    SECTION("Addition") {
+        REQUIRE((Int128(NUM1) + Int128(NUM2)).bit_string() == NUM1_PLUS_NUM2_BIN);
+        REQUIRE((Int128(NUM2) + Int128(NUM1)).bit_string() == NUM1_PLUS_NUM2_BIN);
 
-    REQUIRE((Int128(NUM1_PLUS_NUM3) - Int128(NUM1)).bit_string() == NUM3_BIN);
-    REQUIRE((Int128(NUM1_PLUS_NUM3) - Int128(NUM3)).bit_string() == NUM1_BIN);
+        REQUIRE((Int128(NUM1) + Int128(NUM3)).bit_string() == NUM1_PLUS_NUM3_BIN);
+        REQUIRE((Int128(NUM3) + Int128(NUM1)).bit_string() == NUM1_PLUS_NUM3_BIN);
 
-    REQUIRE((Int128(NUM1_PLUS_NUM4) - Int128(NUM1)).bit_string() == NUM4_BIN);
-    REQUIRE((Int128(NUM1_PLUS_NUM4) - Int128(NUM4)).bit_string() == NUM1_BIN);
+        REQUIRE((Int128(NUM1) + Int128(NUM4)).bit_string() == NUM1_PLUS_NUM4_BIN);
+        REQUIRE((Int128(NUM4) + Int128(NUM1)).bit_string() == NUM1_PLUS_NUM4_BIN);
 
-    REQUIRE((Int128(NUM1_PLUS_NUM5) - Int128(NUM1)).bit_string() == NUM5_BIN);
-    REQUIRE((Int128(NUM1_PLUS_NUM5) - Int128(NUM5)).bit_string() == NUM1_BIN);
-}
+        REQUIRE((Int128(NUM1) + Int128(NUM5)).bit_string() == NUM1_PLUS_NUM5_BIN);
+        REQUIRE((Int128(NUM5) + Int128(NUM1)).bit_string() == NUM1_PLUS_NUM5_BIN);
+    }
 
-TEST_CASE("Multiplication", "[multiplication]") {
-    REQUIRE((Int128(NUM1) * Int128(NUM2)).bit_string() == NUM1_MUL_NUM2_BIN);
-    REQUIRE((Int128(NUM2) * Int128(NUM1)).bit_string() == NUM1_MUL_NUM2_BIN);
+    SECTION("Subtraction") {
+        REQUIRE((Int128(NUM1_PLUS_NUM2) - Int128(NUM1)).bit_string() == NUM2_BIN);
+        REQUIRE((Int128(NUM1_PLUS_NUM2) - Int128(NUM2)).bit_string() == NUM1_BIN);
 
-    REQUIRE((Int128(NUM1) * Int128(NUM3)).bit_string() == NUM1_MUL_NUM3_BIN);
-    REQUIRE((Int128(NUM3) * Int128(NUM1)).bit_string() == NUM1_MUL_NUM3_BIN);
+        REQUIRE((Int128(NUM1_PLUS_NUM3) - Int128(NUM1)).bit_string() == NUM3_BIN);
+        REQUIRE((Int128(NUM1_PLUS_NUM3) - Int128(NUM3)).bit_string() == NUM1_BIN);
 
-    REQUIRE((Int128(NUM1) * Int128(NUM4)).bit_string() == NUM1_MUL_NUM4_BIN);
-    REQUIRE((Int128(NUM4) * Int128(NUM1)).bit_string() == NUM1_MUL_NUM4_BIN);
+        REQUIRE((Int128(NUM1_PLUS_NUM4) - Int128(NUM1)).bit_string() == NUM4_BIN);
+        REQUIRE((Int128(NUM1_PLUS_NUM4) - Int128(NUM4)).bit_string() == NUM1_BIN);
 
-    REQUIRE((Int128(NUM1) * Int128(NUM5)).bit_string() == NUM1_MUL_NUM5_BIN);
-    REQUIRE((Int128(NUM5) * Int128(NUM1)).bit_string() == NUM1_MUL_NUM5_BIN);
-}
+        REQUIRE((Int128(NUM1_PLUS_NUM5) - Int128(NUM1)).bit_string() == NUM5_BIN);
+        REQUIRE((Int128(NUM1_PLUS_NUM5) - Int128(NUM5)).bit_string() == NUM1_BIN);
+    }
 
-TEST_CASE("Comparison", "[comparison]") {
-    // ==
-    REQUIRE(Int128(NUM1) == Int128(NUM1));
-    REQUIRE(Int128(NUM2) == Int128(NUM2));
-    REQUIRE(Int128(NUM3) == Int128(NUM3));
-    REQUIRE(Int128(NUM4) == Int128(NUM4));
-    REQUIRE(Int128(NUM5) == Int128(NUM5));
+    SECTION("Multiplication") {
+        REQUIRE((Int128(NUM1) * Int128(NUM2)).bit_string() == NUM1_MUL_NUM2_BIN);
+        REQUIRE((Int128(NUM2) * Int128(NUM1)).bit_string() == NUM1_MUL_NUM2_BIN);
 
-    // !=
-    for (auto& [decimal1, binary1] : NUMBERS) {
-        for (auto& [decimal2, binary2] : NUMBERS) {
-            if (decimal1 != decimal2) {
-                REQUIRE(Int128(decimal1) != Int128(decimal2));
+        REQUIRE((Int128(NUM1) * Int128(NUM3)).bit_string() == NUM1_MUL_NUM3_BIN);
+        REQUIRE((Int128(NUM3) * Int128(NUM1)).bit_string() == NUM1_MUL_NUM3_BIN);
+
+        REQUIRE((Int128(NUM1) * Int128(NUM4)).bit_string() == NUM1_MUL_NUM4_BIN);
+        REQUIRE((Int128(NUM4) * Int128(NUM1)).bit_string() == NUM1_MUL_NUM4_BIN);
+
+        REQUIRE((Int128(NUM1) * Int128(NUM5)).bit_string() == NUM1_MUL_NUM5_BIN);
+        REQUIRE((Int128(NUM5) * Int128(NUM1)).bit_string() == NUM1_MUL_NUM5_BIN);
+    }
+
+    SECTION("Comparison") {
+        // ==
+        REQUIRE(Int128(NUM1) == Int128(NUM1));
+        REQUIRE(Int128(NUM2) == Int128(NUM2));
+        REQUIRE(Int128(NUM3) == Int128(NUM3));
+        REQUIRE(Int128(NUM4) == Int128(NUM4));
+        REQUIRE(Int128(NUM5) == Int128(NUM5));
+
+        // !=
+        for (auto& [decimal1, binary1] : NUMBERS) {
+            for (auto& [decimal2, binary2] : NUMBERS) {
+                if (decimal1 != decimal2) {
+                    REQUIRE(Int128(decimal1) != Int128(decimal2));
+                }
             }
         }
+
+        // <
+        REQUIRE(Int128(NUM4) < Int128(NUM1));
+        REQUIRE(Int128(NUM1) < Int128(NUM2));
+        REQUIRE(Int128(NUM2) < Int128(NUM5));
+        REQUIRE(Int128(NUM5) < Int128(NUM3));
+
+        // <=
+        REQUIRE(Int128(NUM1) <= Int128(NUM1));
+        REQUIRE(Int128(NUM2) <= Int128(NUM2));
+        REQUIRE(Int128(NUM3) <= Int128(NUM3));
+        REQUIRE(Int128(NUM4) <= Int128(NUM4));
+        REQUIRE(Int128(NUM5) <= Int128(NUM5));
+
+        REQUIRE(Int128(NUM4) <= Int128(NUM1));
+        REQUIRE(Int128(NUM1) <= Int128(NUM2));
+        REQUIRE(Int128(NUM2) <= Int128(NUM5));
+        REQUIRE(Int128(NUM5) <= Int128(NUM3));
+
+        // >
+        REQUIRE(Int128(NUM3) > Int128(NUM5));
+        REQUIRE(Int128(NUM5) > Int128(NUM2));
+        REQUIRE(Int128(NUM2) > Int128(NUM1));
+        REQUIRE(Int128(NUM1) > Int128(NUM4));
+
+        // >=
+        REQUIRE(Int128(NUM1) >= Int128(NUM1));
+        REQUIRE(Int128(NUM2) >= Int128(NUM2));
+        REQUIRE(Int128(NUM3) >= Int128(NUM3));
+        REQUIRE(Int128(NUM4) >= Int128(NUM4));
+        REQUIRE(Int128(NUM5) >= Int128(NUM5));
+
+        REQUIRE(Int128(NUM3) >= Int128(NUM5));
+        REQUIRE(Int128(NUM5) >= Int128(NUM2));
+        REQUIRE(Int128(NUM2) >= Int128(NUM1));
+        REQUIRE(Int128(NUM1) >= Int128(NUM4));
     }
 
-    // <
-    REQUIRE(Int128(NUM4) < Int128(NUM1));
-    REQUIRE(Int128(NUM1) < Int128(NUM2));
-    REQUIRE(Int128(NUM2) < Int128(NUM5));
-    REQUIRE(Int128(NUM5) < Int128(NUM3));
+    SECTION("Cast to double") {
+        REQUIRE(static_cast<double>(Int128(NUM1)) == -42331917115048285275532613511431585792.0);
+        REQUIRE((double)Int128(NUM1) == -42331917115048285275532613511431585792.0);
+    }
 
-    // <=
-    REQUIRE(Int128(NUM1) <= Int128(NUM1));
-    REQUIRE(Int128(NUM2) <= Int128(NUM2));
-    REQUIRE(Int128(NUM3) <= Int128(NUM3));
-    REQUIRE(Int128(NUM4) <= Int128(NUM4));
-    REQUIRE(Int128(NUM5) <= Int128(NUM5));
+    SECTION("Division") {
+        REQUIRE((Int128(10) / Int128(2)).bit_string() == std::string(125, '0') + "101");  // 10 / 2 = 5
+        REQUIRE((Int128(10) / Int128(5)).bit_string() == std::string(126, '0') + "10");   // 10 / 5 = 2
 
-    REQUIRE(Int128(NUM4) <= Int128(NUM1));
-    REQUIRE(Int128(NUM1) <= Int128(NUM2));
-    REQUIRE(Int128(NUM2) <= Int128(NUM5));
-    REQUIRE(Int128(NUM5) <= Int128(NUM3));
+        REQUIRE((Int128(369) / Int128(3)).bit_string() == std::string(121, '0') + "1111011");  // 369 / 3 = 123
+        REQUIRE((Int128(369) / Int128(123)).bit_string() == std::string(126, '0') + "11");     // 369 / 123 = 3
 
-    // >
-    REQUIRE(Int128(NUM3) > Int128(NUM5));
-    REQUIRE(Int128(NUM5) > Int128(NUM2));
-    REQUIRE(Int128(NUM2) > Int128(NUM1));
-    REQUIRE(Int128(NUM1) > Int128(NUM4));
+        REQUIRE((Int128(-369) / Int128(3)).bit_string() == std::string(121, '1') + "0000101");  // -369 / 3 = -123
+        REQUIRE((Int128(369) / Int128(-123)).bit_string() == std::string(126, '1') + "01");     // 369 / -123 = -3
+        REQUIRE((Int128(-369) / Int128(-123)).bit_string() == std::string(126, '0') + "11");    // -369 / -123 = 3
 
-    // >=
-    REQUIRE(Int128(NUM1) >= Int128(NUM1));
-    REQUIRE(Int128(NUM2) >= Int128(NUM2));
-    REQUIRE(Int128(NUM3) >= Int128(NUM3));
-    REQUIRE(Int128(NUM4) >= Int128(NUM4));
-    REQUIRE(Int128(NUM5) >= Int128(NUM5));
+        REQUIRE((Int128(NUM3) / Int128(NUM1)).bit_string() == NUM3_DIV_NUM1_BIN);
 
-    REQUIRE(Int128(NUM3) >= Int128(NUM5));
-    REQUIRE(Int128(NUM5) >= Int128(NUM2));
-    REQUIRE(Int128(NUM2) >= Int128(NUM1));
-    REQUIRE(Int128(NUM1) >= Int128(NUM4));
-}
+        REQUIRE((Int128(NUM3) / Int128(NUM2)).bit_string() == NUM3_DIV_NUM2_BIN);
 
-TEST_CASE("Cast to double", "[double]") {
-    REQUIRE(static_cast<double>(Int128(NUM1)) == -42331917115048285275532613511431585792.0);
-    REQUIRE((double)Int128(NUM1) == -42331917115048285275532613511431585792.0);
-}
+        REQUIRE((Int128(NUM3) / Int128(NUM4)).bit_string() == NUM3_DIV_NUM4_BIN);
 
-TEST_CASE("Division", "[division]") {
-    REQUIRE((Int128(10) / Int128(2)).bit_string() == std::string(125, '0') + "101");  // 10 / 2 = 5
-    REQUIRE((Int128(10) / Int128(5)).bit_string() == std::string(126, '0') + "10");   // 10 / 5 = 2
-
-    REQUIRE((Int128(369) / Int128(3)).bit_string() == std::string(121, '0') + "1111011");  // 369 / 3 = 123
-    REQUIRE((Int128(369) / Int128(123)).bit_string() == std::string(126, '0') + "11");     // 369 / 123 = 3
-
-    REQUIRE((Int128(-369) / Int128(3)).bit_string() == std::string(121, '1') + "0000101");  // -369 / 3 = -123
-    REQUIRE((Int128(369) / Int128(-123)).bit_string() == std::string(126, '1') + "01");     // 369 / -123 = -3
-    REQUIRE((Int128(-369) / Int128(-123)).bit_string() == std::string(126, '0') + "11");    // -369 / -123 = 3
-
-    REQUIRE((Int128(NUM3) / Int128(NUM1)).bit_string() == NUM3_DIV_NUM1_BIN);
-
-    REQUIRE((Int128(NUM3) / Int128(NUM2)).bit_string() == NUM3_DIV_NUM2_BIN);
-
-    REQUIRE((Int128(NUM3) / Int128(NUM4)).bit_string() == NUM3_DIV_NUM4_BIN);
-
-    REQUIRE((Int128(NUM3) / Int128(NUM5)).bit_string() == NUM3_DIV_NUM5_BIN);
+        REQUIRE((Int128(NUM3) / Int128(NUM5)).bit_string() == NUM3_DIV_NUM5_BIN);
+    }
 }

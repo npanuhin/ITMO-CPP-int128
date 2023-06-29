@@ -1,5 +1,5 @@
-#ifndef INT128_SOLVER_HPP
-#define INT128_SOLVER_HPP
+#ifndef INT128_HPP
+#define INT128_HPP
 
 #include <cstdint>
 #include <string>
@@ -106,4 +106,4 @@ public:
     Int128 abs() const;
 };
 
-#endif  // INT128_SOLVER_HPP
+#endif  // INT128_HPP

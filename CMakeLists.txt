@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(Int128 LANGUAGES CXX)
+project(Expression LANGUAGES CXX)
 
 if (NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
     message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
@@ -63,4 +63,4 @@ conan_cmake_install(
 add_subdirectory(libraries)
 
 add_executable(main src/main.cpp)
-target_link_libraries(main PRIVATE int128::int128)
+target_link_libraries(main PRIVATE ${PROJECT_NAME}::${PROJECT_NAME})
