@@ -15,7 +15,7 @@ Int128::Int128(int64_t num) : high(0) {
 }
 
 // Конструирование от int64_t(high) и uint64_t(low)
-Int128::Int128(int64_t high, uint64_t low) : high(high), low(low) {}
+Int128::Int128(int64_t _high, uint64_t _low) : high(_high), low(_low) {}
 
 // Конструирование от std::string_view
 Int128::Int128(std::string_view str) : high(0), low(0) {
@@ -70,8 +70,8 @@ Int128 Int128::operator+(const Int128 &_rhs) const {
     Int128 result;
     int64_t carry = 0;
     for (int i = 0; i < 128; ++i) {
-        int64_t lhs_bit = static_cast<int64_t>((lhs >> i) & Int128(1));
-        int64_t rhs_bit = static_cast<int64_t>((rhs >> i) & Int128(1));
+        int64_t lhs_bit = static_cast<int64_t>((lhs >> i) & ONE);
+        int64_t rhs_bit = static_cast<int64_t>((rhs >> i) & ONE);
         int64_t sum     = lhs_bit + rhs_bit + carry;
 
         carry = sum >> 1;
