@@ -47,48 +47,33 @@ Int128::operator double() const {
 
 // Перевод в строку: std::string str()
 std::string Int128::str() const {
-    if (!low && !high) {
-        return "0";
+    std::string result;
+    Int128 tmp = (*this).abs();
+    while (tmp != ZERO) {
+        Int128 digit = tmp % Int128(10);
+        result += (char)('0' + digit.low);
+        tmp /= Int128(10);
     }
-
-    // bool is_negative = high & (uint64_t(1) << 63);
-
-    // std::string result;
-    // uint64_t tmp_low = low;
-    // uint64_t tmp_high = high;
-    // if (is_negative) {
-    //     tmp_low = ~tmp_low;
-    //     tmp_high = ~tmp_high;
-    //     tmp_low += 1;
-    //     if (tmp_low == 0) {
-    //         tmp_high += 1;
-    //     }
-    // }
-
-    // while (tmp_high != 0) {
-    //     char digit = tmp_high % 10;
-    //     result += digit + '0';
-    //     tmp_high /= 10;
-    // }
-    // while (tmp_low != 0) {
-    //     char digit = tmp_low % 10;
-    //     result += digit + '0';
-    //     tmp_low /= 10;
-    // }
-    // if (is_negative) {
-    //     result += '-';
-    // }
-    // std::reverse(result.begin(), result.end());
-    // return result;
+    if (*this < ZERO) {
+        result += '-';
+    }
+    std::reverse(result.begin(), result.end());
+    return result;
 }
 
 // Сложение: +, +=
-Int128 Int128::operator+(const Int128 &rhs) const {
+Int128 Int128::operator+(const Int128 &_rhs) const {
+    Int128 lhs = *this;
+    Int128 rhs = _rhs;
     Int128 result;
-    result.low  = low + rhs.low;
-    result.high = high + rhs.high;
-    if (result.low < low) {
-        ++result.high;
+    uint64_t carry = 0;
+    for (size_t i = 0; i < 128; ++i) {
+        uint64_t lhs_bit = static_cast<int64_t>((lhs >> i) & Int128(1));
+        uint64_t rhs_bit = static_cast<int64_t>((rhs >> i) & Int128(1));
+        uint64_t sum     = lhs_bit + rhs_bit + carry;
+
+        carry = sum >> 1;
+        result |= Int128(sum & 1) << i;
     }
     return result;
 }
@@ -126,10 +111,58 @@ Int128 &Int128::operator*=(const Int128 &rhs) {
 }
 
 // Деление: /, /=
+Int128 Int128::operator/(const Int128 &_rhs) const {  // a / b = c
+    // Перевести в unsigned и запомнить знак
+    bool is_negative = false;
+    Int128 lhs       = *this;  // a
+    if (lhs < ZERO) {
+        is_negative = !is_negative;
+        lhs         = -lhs;
+    }
+    Int128 rhs = _rhs;  // b
+    if (rhs < ZERO) {
+        is_negative = !is_negative;
+        rhs         = -rhs;
+    }
+
+    // Деление
+    Int128 result;  // c
+    while (rhs <= lhs) {
+        Int128 tmp  = rhs;
+        Int128 tmp2 = ONE;
+        while (tmp.bit_le(lhs)) {
+            tmp <<= 1;
+            tmp2 <<= 1;
+        }
+        tmp >>= 1;
+        tmp2 >>= 1;
+
+        lhs -= tmp;
+        result += tmp2;
+    }
+
+    if (is_negative) {
+        result = -result;
+    }
+    return result;
+}
+Int128 &Int128::operator/=(const Int128 &rhs) {
+    *this = *this / rhs;
+    return *this;
+}
 
 // Унарный минус: -
 Int128 Int128::operator-() const {
-    return ~*this + ONE;
+    Int128 result = *this;
+    result.high   = ~result.high;
+    result.low    = ~result.low;
+    if (result.low == UINT64_MAX) {
+        ++result.high;
+        result.low = 0;
+    } else {
+        ++result.low;
+    }
+    return result;
 }
 
 // Сравнение на равенство: ==, !=
@@ -147,7 +180,7 @@ std::ostream &operator<<(std::ostream &out, const Int128 &num) {
 
 // ====================================================== Custom =======================================================
 
-// Строка из бит с разделителем
+// Строка из бит (с разделителем)
 std::string Int128::bit_string(bool separator) const {
     std::bitset<64> high_bits(high);
     std::bitset<64> low_bits(low);
@@ -206,37 +239,6 @@ Int128 &Int128::operator>>=(int shift) {
     return *this;
 }
 
-// Деление: /, /=
-Int128 Int128::operator/(const Int128 &_rhs) const {
-    // Int128 lhs = *this;
-    // Int128 rhs = _rhs;
-    // bool is_negative = (lhs.high & (uint64_t(1) << 63)) ^ (rhs.high & (uint64_t(1) << 63));
-    // if (lhs.high & (uint64_t(1) << 63)) {
-    //     lhs = -lhs;
-    // }
-    // if (rhs.high & (uint64_t(1) << 63)) {
-    //     rhs = -rhs;
-    // }
-    // Int128 result;
-    // for (int i = 127; i >= 0; --i) {
-    //     result <<= 1;
-    //     if (lhs >= rhs) {
-    //         lhs -= rhs;
-    //         result += Int128(1);
-    //     }
-    //     rhs >>= 1;
-    // }
-    // if (is_negative) {
-    //     result = -result;
-    // }
-    // return result;
-    return ONE;
-}
-Int128 &Int128::operator/=(const Int128 &rhs) {
-    *this = *this / rhs;
-    return *this;
-}
-
 // Остаток от деления: %, %=
 Int128 Int128::operator%(const Int128 &rhs) const {
     return *this - (*this / rhs) * rhs;
@@ -263,4 +265,41 @@ bool Int128::operator>(const Int128 &rhs) const {
 }
 bool Int128::operator>=(const Int128 &rhs) const {
     return rhs <= *this;
+}
+
+// Сравнение побитовое (беззнаковое): <, <=
+bool Int128::bit_lt(const Int128 &rhs) const {
+    if (high == rhs.high) {
+        return low < rhs.low;
+    }
+    return static_cast<uint64_t>(high) < static_cast<uint64_t>(rhs.high);
+}
+bool Int128::bit_le(const Int128 &rhs) const {
+    return bit_lt(rhs) || *this == rhs;
+}
+
+// Побитовое И: &, &=
+Int128 Int128::operator&(const Int128 &rhs) const {
+    return Int128(high & rhs.high, low & rhs.low);
+}
+Int128 &Int128::operator&=(const Int128 &rhs) {
+    *this = *this & rhs;
+    return *this;
+}
+
+// Побитовое ИЛИ: |, |=
+Int128 Int128::operator|(const Int128 &rhs) const {
+    return Int128(high | rhs.high, low | rhs.low);
+}
+Int128 &Int128::operator|=(const Int128 &rhs) {
+    *this = *this | rhs;
+    return *this;
+}
+
+// Модуль числа: abs()
+Int128 Int128::abs() const {
+    if (high < 0) {
+        return -*this;
+    }
+    return *this;
 }

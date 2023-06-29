@@ -67,6 +67,19 @@ std::string NUM1_MUL_NUM5_BIN =
     "0111000000110111011101011011100011101011011100001100001111000111"
     "1010000000011111110100101101000110011110110111010010000110010010";
 
+std::string NUM3_DIV_NUM1_BIN =
+    "1111111111111111111111111111111111111111111111111111111111111111"
+    "1111111111111111111111111111111111111111111111111111111111111110";
+std::string NUM3_DIV_NUM2_BIN =
+    "1111111111111111111111111111111111111111111111111111111111111111"
+    "1111111111111111111111111111111111111111111111111111111111111101";
+std::string NUM3_DIV_NUM4_BIN =
+    "0000000000000000000000000000000000000000000000000000000000000000"
+    "0000000000000000000000000000000000000000000000000000000000000000";
+std::string NUM3_DIV_NUM5_BIN =
+    "0000000000000000000000000000000000000000000000000000000000000000"
+    "0000000000000000000000000000000000000000000000000000000000001000";
+
 }  // anonymous namespace
 
 std::map<char, char> BIN_REVERT = {{'0', '1'}, {'1', '0'}};
@@ -91,11 +104,11 @@ TEST_CASE("From string_view", "[string_view]") {
     }
 }
 
-// TEST_CASE("To str()", "[str]") {
-//     for (auto & [decimal1, binary] : NUMBERS) {
-//         REQUIRE(Int128(decimal1).str() == decimal1);
-//     }
-// }
+TEST_CASE("To str()", "[str]") {
+    for (auto& [decimal1, binary] : NUMBERS) {
+        REQUIRE(Int128(decimal1).str() == decimal1);
+    }
+}
 
 TEST_CASE("Unary minus", "[minus]") {
     for (auto& [decimal1, binary] : NUMBERS) {
@@ -204,7 +217,27 @@ TEST_CASE("Comparison", "[comparison]") {
 }
 
 TEST_CASE("Cast to double", "[double]") {
-    // INFO(std::setprecision(100) << static_cast<double>(Int128(NUM1)));
-    REQUIRE(static_cast<double>(Int128(NUM1)) == 13015450099989248000);
-    REQUIRE((double)(Int128(NUM1)) == 13015450099989248000);
+    //    INFO(std::setprecision(100) << static_cast<double>(Int128(NUM1)));
+    REQUIRE(static_cast<double>(Int128(NUM1)) == static_cast<double>(13015450099989248000ull));
+    REQUIRE((double)(Int128(NUM1)) == static_cast<double>(13015450099989248000ull));
+}
+
+TEST_CASE("Division", "[division]") {
+    REQUIRE((Int128(10) / Int128(2)).bit_string() == std::string(125, '0') + "101");  // 10 / 2 = 5
+    REQUIRE((Int128(10) / Int128(5)).bit_string() == std::string(126, '0') + "10");   // 10 / 5 = 2
+
+    REQUIRE((Int128(369) / Int128(3)).bit_string() == std::string(121, '0') + "1111011");  // 369 / 3 = 123
+    REQUIRE((Int128(369) / Int128(123)).bit_string() == std::string(126, '0') + "11");     // 369 / 123 = 3
+
+    REQUIRE((Int128(-369) / Int128(3)).bit_string() == std::string(121, '1') + "0000101");  // -369 / 3 = -123
+    REQUIRE((Int128(369) / Int128(-123)).bit_string() == std::string(126, '1') + "01");     // 369 / -123 = -3
+    REQUIRE((Int128(-369) / Int128(-123)).bit_string() == std::string(126, '0') + "11");    // -369 / -123 = 3
+
+    REQUIRE((Int128(NUM3) / Int128(NUM1)).bit_string() == NUM3_DIV_NUM1_BIN);
+
+    REQUIRE((Int128(NUM3) / Int128(NUM2)).bit_string() == NUM3_DIV_NUM2_BIN);
+
+    REQUIRE((Int128(NUM3) / Int128(NUM4)).bit_string() == NUM3_DIV_NUM4_BIN);
+
+    REQUIRE((Int128(NUM3) / Int128(NUM5)).bit_string() == NUM3_DIV_NUM5_BIN);
 }

@@ -2,7 +2,7 @@
 #define INT128_SOLVER_HPP
 
 #include <cstdint>
-#include <iostream>
+#include <string>
 
 class Int128 {
     int64_t high;
@@ -19,10 +19,10 @@ public:
     explicit Int128(std::string_view str);
 
     // Явное приведение к int64_t
-    operator int64_t() const;
+    explicit operator int64_t() const;
 
     // Явное приведение к double
-    operator double() const;
+    explicit operator double() const;
 
     // Перевод в строку: std::string str()
     std::string str() const;
@@ -40,6 +40,8 @@ public:
     Int128& operator*=(const Int128& rhs);
 
     // Деление: /, /=
+    Int128 operator/(const Int128& rhs) const;
+    Int128& operator/=(const Int128& rhs);
 
     // Унарный минус: -
     Int128 operator-() const;
@@ -56,6 +58,10 @@ public:
 private:
     // Конструирование от int64_t(high) и uint64_t(low)
     explicit Int128(int64_t high, uint64_t low);
+
+    // Сравнение побитовое (беззнаковое): <, <=
+    bool bit_lt(const Int128& rhs) const;
+    bool bit_le(const Int128& rhs) const;
 
 public:
     // Строка из бит (с разделителем)
@@ -76,10 +82,6 @@ public:
     Int128 operator>>(int shift) const;
     Int128& operator>>=(int shift);
 
-    // Деление: /, /=
-    Int128 operator/(const Int128& rhs) const;
-    Int128& operator/=(const Int128& rhs);
-
     // Остаток от деления: %, %=
     Int128 operator%(const Int128& rhs) const;
     Int128& operator%=(const Int128& rhs);
@@ -91,6 +93,17 @@ public:
     // Сравнение: >, >=
     bool operator>(const Int128& rhs) const;
     bool operator>=(const Int128& rhs) const;
+
+    // Побитовое И: &, &=
+    Int128 operator&(const Int128& rhs) const;
+    Int128& operator&=(const Int128& rhs);
+
+    // Побитовое ИЛИ: |, |=
+    Int128 operator|(const Int128& rhs) const;
+    Int128& operator|=(const Int128& rhs);
+
+    // Модуль числа: abs()
+    Int128 abs() const;
 };
 
 #endif  // INT128_SOLVER_HPP
