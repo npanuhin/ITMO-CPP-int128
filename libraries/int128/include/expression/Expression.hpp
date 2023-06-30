@@ -21,8 +21,8 @@ private:
     Int128 value;
 
 public:
-    explicit Const(const Int128& value) : value(value) {}
-    explicit Const(const int64_t value) : value(value) {}
+    explicit Const(const Int128& _value) : value(_value) {}
+    explicit Const(const int64_t _value) : value(_value) {}
 
     Int128 eval(const std::unordered_map<std::string, Int128>&) const override;
     std::unique_ptr<Expression> clone() const override;
