@@ -1,5 +1,5 @@
-#ifndef EXPRESSION_HPP
-#define EXPRESSION_HPP
+#ifndef EXPRESSION_EXPRESSION_HPP
+#define EXPRESSION_EXPRESSION_HPP
 
 #include <iostream>
 #include <memory>
@@ -123,4 +123,4 @@ Divide operator/(const Expression& left, const Expression& right);
 // Operator for streaming expression to output
 std::ostream& operator<<(std::ostream& os, const Expression& expr);
 
-#endif  // EXPRESSION_HPP
+#endif  // EXPRESSION_EXPRESSION_HPP
